@@ -1,21 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1440" viewBox="0 0 2560 1440">
-  <defs>
-    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#090d17"/><stop offset="1" stop-color="#1c1937"/></linearGradient>
-    <radialGradient id="glow"><stop stop-color="#7066de" stop-opacity=".23"/><stop offset="1" stop-color="#7066de" stop-opacity="0"/></radialGradient>
-    <linearGradient id="line"><stop stop-color="#8c79ff"/><stop offset="1" stop-color="#73e9df"/></linearGradient>
-  </defs>
-  <path fill="url(#bg)" d="M0 0h2560v1440H0z"/>
-  <ellipse cx="1800" cy="660" rx="900" ry="790" fill="url(#glow)"/>
-  <g transform="translate(1780 655) rotate(-28)" fill="none" stroke="url(#line)">
-    <ellipse rx="495" ry="245" stroke-width="2" opacity=".4"/>
-    <ellipse rx="580" ry="350" stroke-width="1" opacity=".16"/>
-    <ellipse rx="650" ry="460" stroke-width="1" opacity=".08"/>
-    <circle cx="495" r="7" fill="#93ede1" stroke="none"/>
-  </g>
-  <g transform="translate(1640 565)" fill="none" stroke="url(#line)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M0 180V0l90 105L180 0v180"/>
-    <path d="M230 180V65" opacity=".45"/>
-  </g>
-  <text x="200" y="1110" fill="#ecedff" font-family="DejaVu Sans,sans-serif" font-size="57" font-weight="bold" letter-spacing="10">MITA LITE</text>
-  <text x="204" y="1160" fill="#8a93ad" font-family="DejaVu Sans,sans-serif" font-size="21" letter-spacing="4">MAKE ROOM FOR PLAY.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#21162f"/><stop offset="1" stop-color="#54304f"/></linearGradient><radialGradient id="glow"><stop stop-color="#ef9bbf" stop-opacity=".32"/><stop offset="1" stop-color="#ef9bbf" stop-opacity="0"/></radialGradient></defs>
+<rect width="1920" height="1080" fill="url(#bg)"/><circle cx="1410" cy="400" r="660" fill="url(#glow)"/>
+<g opacity=".25" stroke="#ffd2e4" fill="none"><circle cx="1450" cy="520" r="285" stroke-width="3"/><circle cx="1450" cy="520" r="330"/><path d="M0 810 Q520 630 1000 800 T1920 770"/></g>
+<g fill="#ffb5d3"><path d="M1370 220 l18 40 44 4-33 28 9 43-38-23-39 23 9-43-33-28 44-4z"/><circle cx="1650" cy="760" r="9"/><circle cx="1170" cy="730" r="6"/></g>
+<rect x="180" y="330" width="720" height="360" rx="32" fill="#24192d" stroke="#ffb5d3" stroke-width="3" opacity=".94"/>
+<text x="245" y="475" font-family="DejaVu Sans,sans-serif" font-size="94" font-weight="bold" fill="#fff2f7">Mita Lite</text>
+<text x="250" y="552" font-family="DejaVu Sans,sans-serif" font-size="33" fill="#ffb5d3">FAN EDITION  •  v0.3</text>
+<text x="250" y="620" font-family="DejaVu Sans,sans-serif" font-size="25" fill="#ded1e1">Your desktop. Your little world.</text>
+<text x="60" y="1020" font-family="DejaVu Sans,sans-serif" font-size="20" fill="#dfcad9">Unofficial fan project · Original artwork · Not affiliated with MiSide</text>
 </svg>
