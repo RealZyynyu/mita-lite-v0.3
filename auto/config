@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+lb config noauto \
+    --ignore-system-defaults \
+    --mode debian \
+    --distribution trixie \
+    --architecture amd64 \
+    --binary-image iso-hybrid \
+    --bootloaders 'syslinux grub-efi' \
+    --archive-areas 'main contrib non-free non-free-firmware' \
+    --apt-recommends false \
+    --apt-indices false \
+    --apt-source-archives false \
+    --security true \
+    --updates true \
+    --firmware-chroot true \
+    --debian-installer live \
+    --debian-installer-gui false \
+    --debian-installer-preseedfile preseed.cfg \
+    --chroot-filesystem squashfs \
+    --chroot-squashfs-compression-type xz \
+    --checksums sha256 \
+    --image-name mita-lite-0.2 \
+    --iso-application 'Mita Lite 0.2 Legacy Prototype' \
+    --iso-publisher 'Mita Lite custom remix - unofficial Debian derivative' \
+    --iso-volume MITA_LITE_02 \
+    --bootappend-live 'boot=live components username=player hostname=mita-lite locales=en_US.UTF-8 keyboard-layouts=us' \
+    "${@}"

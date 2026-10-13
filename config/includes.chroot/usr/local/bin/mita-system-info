@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+import platform,shutil
+from pathlib import Path
+print('Mita Lite System Information')
+print('CPU:',platform.processor() or platform.machine())
+print('Architecture:',platform.machine())
+print('Kernel:',platform.release())
+for line in Path('/proc/meminfo').read_text().splitlines():
+ if line.startswith('MemTotal:'): print('RAM:',round(int(line.split()[1])/1048576,2),'GiB');break
+d=shutil.disk_usage('/')
+print('Storage:',round(d.used/2**30,1),'/',round(d.total/2**30,1),'GiB')

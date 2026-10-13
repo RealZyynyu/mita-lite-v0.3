@@ -1,0 +1,117 @@
+#!/usr/bin/python3
+"""Small GTK onboarding app. No webview, service, telemetry or automatic installs."""
+import subprocess
+from pathlib import Path
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gdk, Gtk
+
+CSS = b"""
+window { background: #11151f; color: #edf1fc; }
+.eyebrow { color: #91a2ff; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
+.title { font-size: 34px; font-weight: bold; }
+.muted { color: #a5afc5; }
+.card { background: #1b2130; border: 1px solid #303a50; border-radius: 12px; padding: 16px; }
+.card-title { font-size: 18px; font-weight: bold; }
+button { background-image: none; background: #2d3652; color: #edf1fc; border: 1px solid #435171;
+         border-radius: 7px; padding: 9px 14px; box-shadow: none; text-shadow: none; }
+button:hover { background: #424f78; }
+.primary { background: #7564d9; border-color: #9987ff; }
+.primary:hover { background: #8976ed; }
+"""
+
+
+class Hub(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Mita Lite · Game Hub")
+        self.set_default_size(760, 540)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.connect("destroy", Gtk.main_quit)
+        provider = Gtk.CssProvider()
+        provider.load_from_data(CSS)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.add(scroll)
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        content.set_border_width(30)
+        scroll.add(content)
+        content.pack_start(self.label("MITA LITE  /  GAME HUB", "eyebrow"), False, False, 0)
+        content.pack_start(self.label("Make room for play.", "title"), False, False, 0)
+        content.pack_start(self.label(
+            "Your desktop is ready. Add the apps you want, when you want them.", "muted"
+        ), False, False, 0)
+        if "boot=live" in Path("/proc/cmdline").read_text():
+            content.pack_start(self.label(
+                "TRYING THE LIVE DESKTOP · App installs are temporary without persistence.\n"
+                "To keep your setup, reboot and select Install in the USB boot menu.", "muted"
+            ), False, False, 0)
+
+        grid = Gtk.Grid(column_spacing=12, row_spacing=12, column_homogeneous=True)
+        cards = [
+            ("Steam", "Optional client. Modern games may exceed this PC's limits.", "steam"),
+            ("Discord", "Voice and chat. Downloads the official Linux desktop app.", "discord"),
+            ("Lutris", "Manage other game stores and Wine-based games.", "lutris"),
+            ("MangoHud", "Optional FPS, frame-time and hardware overlay.", "mangohud"),
+            ("OBS Studio", "Record your game or go live. Hardware support varies.", "obs"),
+            ("VLC", "A versatile player for your music and video.", "vlc"),
+            ("Vulkan tools", "Optional drivers for supported GPUs and modern Proton.", "vulkan"),
+            ("Bluetooth", "Add pairing support if your PC has Bluetooth hardware.", "bluetooth"),
+        ]
+        for index, (title, detail, key) in enumerate(cards):
+            card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=9)
+            card.get_style_context().add_class("card")
+            card.pack_start(self.label(title, "card-title"), False, False, 0)
+            desc = self.label(detail, "muted")
+            desc.set_max_width_chars(36)
+            card.pack_start(desc, True, True, 0)
+            button = Gtk.Button(label=f"Install {title}")
+            button.connect("clicked", lambda _button, app=key: self.install(app))
+            card.pack_start(button, False, False, 0)
+            grid.attach(card, index % 2, index // 2, 1, 1)
+        content.pack_start(grid, True, True, 2)
+        row = Gtk.Box(spacing=10)
+        actions = [
+            ("Update system", lambda: self.install("update")),
+            ("Read setup guide", lambda: self.run(["xdg-open", "/usr/share/doc/mita-lite/guide.html"])),
+            ("Desktop settings", lambda: self.run(["xfce4-settings-manager"])),
+        ]
+        for title, callback in actions:
+            button = Gtk.Button(label=title)
+            button.connect("clicked", lambda _button, action=callback: action())
+            row.pack_start(button, True, True, 0)
+        content.pack_start(row, False, False, 0)
+        content.pack_start(self.label(
+            "Start with native, older or lightweight games. Old GPUs may lack Vulkan support.\n"
+            "This hub closes completely when you close its window.", "muted"
+        ), False, False, 0)
+
+    @staticmethod
+    def label(text, style):
+        label = Gtk.Label(label=text, xalign=0)
+        label.set_line_wrap(True)
+        label.get_style_context().add_class(style)
+        return label
+
+    def install(self, app):
+        self.run(["xfce4-terminal", "--hold", "--execute", "/usr/local/bin/mita-apps", app])
+
+    def run(self, argv):
+        try:
+            subprocess.Popen(argv)
+        except OSError as error:
+            dialog = Gtk.MessageDialog(
+                transient_for=self, modal=True, message_type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.CLOSE, text="Could not open this action."
+            )
+            dialog.format_secondary_text(str(error))
+            dialog.run()
+            dialog.destroy()
+
+
+if __name__ == "__main__":
+    Hub().show_all()
+    Gtk.main()

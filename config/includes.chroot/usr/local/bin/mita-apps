@@ -1,0 +1,80 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() { echo 'Usage: mita-apps {steam|discord|lutris|mangohud|obs|vlc|vulkan|bluetooth|gamemode|update}'; }
+[[ $# == 1 ]] || { usage; exit 2; }
+case "$1" in
+    steam) description='Steam and 32-bit OpenGL libraries (client may pull additional graphics dependencies)' ;;
+    discord) description='Discord desktop from the official HTTPS download' ;;
+    lutris) description='Lutris, Wine and 32-bit OpenGL libraries' ;;
+    mangohud) description='MangoHud FPS/performance overlay (64-bit and 32-bit)' ;;
+    obs) description='OBS Studio for recording and streaming' ;;
+    vlc) description='VLC media player' ;;
+    vulkan) description='Mesa Vulkan drivers and diagnostics; requires a supported GPU' ;;
+    bluetooth) description='Bluetooth pairing tools for machines with Bluetooth hardware' ;;
+    gamemode) description='Optional GameMode optimization helper' ;;
+    update) description='Debian package updates (review removals before accepting)' ;;
+    *) usage; exit 2 ;;
+esac
+[[ $EUID != 0 ]] || { echo 'Run this as your regular desktop user, without sudo.' >&2; exit 1; }
+. /etc/os-release
+[[ ${ID:-} == debian && ${VERSION_CODENAME:-} == trixie ]] || {
+    echo 'This helper supports the Debian 13 Mita Lite build only.' >&2; exit 1;
+}
+[[ $(dpkg --print-architecture) == amd64 ]] || { echo 'amd64 required.' >&2; exit 1; }
+printf '\n%s\n\n' "$description"
+echo 'Downloads need internet and additional disk space. Apt will show the size before installation.'
+if grep -qw 'boot=live' /proc/cmdline; then
+    echo 'Live session: installs are temporary unless persistence is configured; they also consume overlay space.'
+    echo 'For regular use, install the OS to disk first.'
+fi
+if [[ $1 == discord ]]; then
+    echo 'Discord is proprietary and updated separately. Rerun this installer when Discord requires a new release.'
+fi
+read -r -p 'Continue? [y/N] ' answer || exit 0
+case "$answer" in y|Y|yes|YES) ;; *) echo 'Cancelled.'; exit 0 ;; esac
+sudo -v
+
+enable_i386() { sudo dpkg --add-architecture i386; }
+graphics=(libgl1-mesa-dri:amd64 libgl1-mesa-dri:i386)
+case "$1" in
+    steam|lutris|mangohud|vulkan) enable_i386 ;;
+esac
+sudo apt-get update
+case "$1" in
+    steam)
+        sudo apt-get install --no-install-recommends steam-installer steam-devices "${graphics[@]}"
+        echo 'Open Steam, sign in, and check Settings > Compatibility for Proton options.'
+        echo 'NVIDIA users also need the matching proprietary 32-bit driver libraries; see the guide.'
+        echo 'For a Vulkan-capable GPU, add Vulkan tools in Game Hub. For older GPUs, read the OpenGL fallback guide.'
+        ;;
+    lutris)
+        sudo apt-get install --no-install-recommends lutris wine wine64 wine32:i386 "${graphics[@]}"
+        ;;
+    mangohud) sudo apt-get install mangohud:amd64 mangohud:i386 ;;
+    obs) sudo apt-get install obs-studio ;;
+    vlc) sudo apt-get install vlc ;;
+    vulkan) sudo apt-get install mesa-vulkan-drivers:amd64 mesa-vulkan-drivers:i386 libvulkan1:amd64 libvulkan1:i386 vulkan-tools ;;
+    bluetooth) sudo apt-get install bluez blueman ;;
+    gamemode) sudo apt-get install gamemode ;;
+    update) sudo apt-get full-upgrade ;;
+    discord)
+        temp_dir=$(mktemp -d)
+        trap 'rm -rf -- "$temp_dir"' EXIT
+        curl --fail --show-error --location --proto '=https' --proto-redir '=https' \
+            --retry 2 --connect-timeout 20 --max-time 600 \
+            'https://discord.com/api/download?platform=linux&format=deb' \
+            --output "$temp_dir/discord.deb"
+        [[ $(dpkg-deb --field "$temp_dir/discord.deb" Package) == discord ]] || {
+            echo 'Unexpected package name; refusing installation.' >&2; exit 1;
+        }
+        [[ $(dpkg-deb --field "$temp_dir/discord.deb" Architecture) == amd64 ]] || {
+            echo 'Unexpected package architecture; refusing installation.' >&2; exit 1;
+        }
+        # The download is not independently signed here; trust is the official HTTPS origin.
+        chmod 0755 "$temp_dir"
+        chmod 0644 "$temp_dir/discord.deb"
+        sudo apt-get install "$temp_dir/discord.deb"
+        ;;
+esac
+echo 'Done. Apps are available in the application menu.'

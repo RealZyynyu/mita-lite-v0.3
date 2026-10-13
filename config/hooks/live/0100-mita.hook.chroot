@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+chmod 0755 /usr/local/bin/mita-apps /usr/local/bin/mita-hub /usr/local/bin/mita-first-login /usr/local/bin/mita-license-warning /usr/local/bin/mita-wallpaper-guard /usr/local/sbin/mita-credit-check /usr/local/sbin/mita-live-autologin
+update-alternatives --set x-session-manager /usr/bin/startxfce4
+systemctl enable NetworkManager.service lightdm.service mita-credit-check.service mita-live-autologin.service
+systemctl set-default graphical.target
+# Keep enough logs for troubleshooting without unlimited persistent growth.
+mkdir -p /etc/systemd/journald.conf.d
+printf '[Journal]\nSystemMaxUse=100M\nRuntimeMaxUse=32M\n' > /etc/systemd/journald.conf.d/50-mita.conf
+apt-get clean
