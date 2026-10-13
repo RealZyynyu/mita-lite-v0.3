@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+state_dir=${XDG_CONFIG_HOME:-"$HOME/.config"}/mita-lite
+mkdir -p "$state_dir"
+[[ ! -e "$state_dir/first-login-complete" ]] || exit 0
+# xfdesktop creates output-specific property paths after the session starts.
+for attempt in {1..15}; do
+    properties=$(xfconf-query -c xfce4-desktop -l 2>/dev/null || true)
+    found=false
+    while IFS= read -r property; do
+        if [[ $property == /backdrop/*/last-image ]]; then
+            xfconf-query -c xfce4-desktop -p "$property" -s /usr/share/backgrounds/mita-lite/orbit.svg
+            found=true
+        fi
+    done <<< "$properties"
+    if [[ $found == true ]]; then
+        touch "$state_dir/first-login-complete"
+        break
+    fi
+    sleep 1
+done
+touch "$state_dir/first-login-complete"
+# Keep login lean. The user can open Game Hub from the panel when needed.
+exit 0

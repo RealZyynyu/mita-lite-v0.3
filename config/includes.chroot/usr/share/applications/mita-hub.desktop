@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mita Game Hub
+Comment=Set up your gaming desktop
+Exec=/usr/local/bin/mita-hub
+Icon=applications-games
+Categories=Game;System;
+Terminal=false
+StartupNotify=true

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Lite first login
+Exec=/usr/local/bin/mita-first-login
+OnlyShowIn=XFCE;
+Terminal=false

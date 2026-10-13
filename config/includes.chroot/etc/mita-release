@@ -1,0 +1,4 @@
+NAME="Mita Lite"
+VERSION="0.2 legacy prototype"
+BASE="Debian 13 trixie"
+# /etc/os-release intentionally retains Debian identity for package compatibility.
