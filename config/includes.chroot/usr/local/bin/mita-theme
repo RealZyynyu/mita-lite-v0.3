@@ -1,0 +1,11 @@
+#!/bin/sh
+# Apply existing Xfce defaults for this user.
+set -eu
+command -v xfconf-query >/dev/null || { echo "xfconf-query unavailable"; exit 1; }
+case "${1:-}" in
+ apply)
+  xfconf-query -c xsettings -p /Net/ThemeName -s Arc-Dark || xfconf-query -c xsettings -p /Net/ThemeName -n -t string -s Arc-Dark
+  xfconf-query -c xsettings -p /Net/IconThemeName -s Adwaita || xfconf-query -c xsettings -p /Net/IconThemeName -n -t string -s Adwaita
+  echo "Mita Lite dark theme applied.";;
+ *) echo "Usage: mita-theme apply"; exit 2;;
+esac

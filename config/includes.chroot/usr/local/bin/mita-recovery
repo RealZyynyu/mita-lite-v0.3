@@ -1,0 +1,13 @@
+#!/bin/sh
+# Read-only recovery checks. No repair or disk writes.
+set -eu
+echo "Mita Lite recovery diagnostics (read-only)"
+echo "--- Storage ---"
+df -h /
+echo "--- Failed services ---"
+if command -v systemctl >/dev/null 2>&1; then systemctl --failed --no-pager || true; fi
+echo "--- Package database audit ---"
+if command -v dpkg >/dev/null 2>&1; then dpkg --audit || true; fi
+echo "--- Network ---"
+if command -v nmcli >/dev/null 2>&1; then nmcli -t -f DEVICE,STATE device status || true; fi
+echo "No repairs were made. Review diagnostics before changing anything."

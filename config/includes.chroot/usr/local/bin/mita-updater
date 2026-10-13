@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""Check public release metadata, never execute downloaded code."""
+import json
+import urllib.request
+from pathlib import Path
+URL = "https://api.github.com/repos/RealZyynyu/mita-lite-v0.3/releases/latest"
+print("Mita Lite updater — release information only")
+try:
+    request = urllib.request.Request(URL, headers={"User-Agent": "Mita-Lite-Update-Checker", "Accept": "application/vnd.github+json"})
+    with urllib.request.urlopen(request, timeout=8) as response:
+        data = json.load(response)
+    print("Latest published release:", data.get("tag_name", "unknown"))
+    print("Release page:", data.get("html_url", "unknown"))
+except Exception as error:
+    print("No release information available:", error)
+print("For Debian security updates, open Mita Software Center (Synaptic).")
+print("This tool does not install or download releases automatically.")

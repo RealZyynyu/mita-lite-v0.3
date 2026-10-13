@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Performance Mode
+Comment=Toggle Xfce compositing for older PCs
+Exec=xfce4-terminal --hold -e /usr/local/bin/mita-performance status
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;

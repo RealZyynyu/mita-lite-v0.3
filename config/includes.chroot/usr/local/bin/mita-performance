@@ -1,0 +1,12 @@
+#!/bin/sh
+# Reversible, per-user Xfce compositor preference.
+set -eu
+case "${1:-}" in
+ status) xfconf-query -c xfwm4 -p /general/use_compositing 2>/dev/null || echo "Not configured";;
+ on|off)
+  command -v xfconf-query >/dev/null || { echo "Install xfconf"; exit 1; }
+  if [ "$1" = on ]; then value=true; else value=false; fi
+  xfconf-query -c xfwm4 -p /general/use_compositing -s "$value" || xfconf-query -c xfwm4 -p /general/use_compositing -n -t bool -s "$value"
+  echo "Xfce compositing set to $value (reversible).";;
+ *) echo "Usage: mita-performance {status|on|off}"; exit 2;;
+esac

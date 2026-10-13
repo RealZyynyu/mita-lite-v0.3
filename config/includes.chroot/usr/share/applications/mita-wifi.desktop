@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Wi-Fi Tools
+Comment=Edit Wi-Fi and network connections
+Exec=/usr/local/bin/mita-wifi
+Icon=network-wireless
+Terminal=false
+Categories=System;

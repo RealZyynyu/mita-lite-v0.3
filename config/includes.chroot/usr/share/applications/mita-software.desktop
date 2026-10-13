@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Software Center
+Comment=Install Debian packages with Synaptic
+Exec=/usr/local/bin/mita-software
+Icon=system-software-install
+Terminal=false
+Categories=System;

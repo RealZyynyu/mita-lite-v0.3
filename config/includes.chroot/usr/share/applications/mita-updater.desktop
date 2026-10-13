@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Updater
+Comment=Check for new Mita Lite releases
+Exec=xfce4-terminal --hold -e /usr/local/bin/mita-updater
+Icon=software-update-available
+Terminal=false
+Categories=System;
