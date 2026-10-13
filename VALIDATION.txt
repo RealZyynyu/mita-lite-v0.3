@@ -1,0 +1,9 @@
+Mita Lite 0.2 older-PC revision.
+Validation performed in the supplied Ubuntu 24.04 workspace.
+
+PASS: 15 source-format checks; 62 package-name entries.
+PASS: configuration wrapper quoting, local assets, CLI input and root guards.
+NOT RUN: package resolution, GTK rendering, ISO build/boot/install, hardware or games.
+
+No package downloads, privileged installations, image flashing, or OS installation occurred.
+RAM/storage targets have not been measured.

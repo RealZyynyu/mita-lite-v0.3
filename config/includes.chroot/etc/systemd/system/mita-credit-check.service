@@ -1,0 +1,13 @@
+[Unit]
+Description=Mita Lite creator-credit integrity check
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/mita-release
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/mita-credit-check
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

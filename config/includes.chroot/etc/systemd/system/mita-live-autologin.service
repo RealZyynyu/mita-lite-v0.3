@@ -1,0 +1,13 @@
+[Unit]
+Description=Configure Mita Lite live-session autologin
+Before=lightdm.service display-manager.service
+After=local-fs.target
+ConditionPathExists=/etc/mita-release
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/mita-live-autologin
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target
