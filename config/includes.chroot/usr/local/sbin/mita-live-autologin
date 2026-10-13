@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+conf_dir=/etc/lightdm/lightdm.conf.d
+conf_file="$conf_dir/40-mita-live-autologin.conf"
+
+mkdir -p "$conf_dir"
+
+if grep -qw 'boot=live' /proc/cmdline; then
+    cat > "$conf_file" <<'EOF'
+[Seat:*]
+autologin-user=player
+autologin-user-timeout=0
+user-session=xfce
+EOF
+else
+    rm -f "$conf_file"
+fi

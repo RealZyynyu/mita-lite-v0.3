@@ -1,0 +1,27 @@
+#!/bin/bash
+set -u
+
+status_file=/var/lib/mita-lite/credit-status
+official_wallpaper=/usr/share/backgrounds/mita-lite/orbit.svg
+
+restore_official_wallpaper() {
+    properties=$(xfconf-query -c xfce4-desktop -l 2>/dev/null || true)
+    while IFS= read -r property; do
+        case "$property" in
+            /backdrop/*/last-image|/backdrop/*/image-path)
+                current=$(xfconf-query -c xfce4-desktop -p "$property" 2>/dev/null || true)
+                if [[ "$current" != "$official_wallpaper" ]]; then
+                    xfconf-query -c xfce4-desktop -p "$property" -s "$official_wallpaper" >/dev/null 2>&1 || true
+                fi
+                ;;
+        esac
+    done <<< "$properties"
+}
+
+while true; do
+    status=$(cat "$status_file" 2>/dev/null || true)
+    if [[ "$status" == "unverified" ]]; then
+        restore_official_wallpaper
+    fi
+    sleep 2
+done

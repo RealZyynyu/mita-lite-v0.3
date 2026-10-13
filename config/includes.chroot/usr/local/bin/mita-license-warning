@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+"""Explain the credit-integrity restriction on unverified Mita Lite builds."""
+from pathlib import Path
+import subprocess
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+STATUS = Path("/var/lib/mita-lite/credit-status")
+OFFICIAL = "https://github.com/RealZyynyu/mita-lite/releases/tag/v0.2"
+
+
+def main():
+    try:
+        status = STATUS.read_text().strip()
+    except OSError:
+        return
+    if status != "unverified":
+        return
+
+    dialog = Gtk.MessageDialog(
+        modal=True,
+        message_type=Gtk.MessageType.WARNING,
+        buttons=Gtk.ButtonsType.NONE,
+        text="Unverified Mita Lite build",
+    )
+    dialog.format_secondary_text(
+        "The creator credit for blackbvnny is missing or changed. "
+        "Wallpaper customization is disabled on this unverified build. "
+        "Restore the official credit/build, or use an authorized separately licensed build."
+    )
+    dialog.add_button("Close", Gtk.ResponseType.CLOSE)
+    dialog.add_button("Open official download", Gtk.ResponseType.OK)
+    response = dialog.run()
+    dialog.destroy()
+    if response == Gtk.ResponseType.OK:
+        try:
+            subprocess.Popen(["xdg-open", OFFICIAL])
+        except OSError:
+            pass
+
+
+if __name__ == "__main__":
+    main()

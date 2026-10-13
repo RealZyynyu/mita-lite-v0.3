@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Lite Wallpaper Guard
+Comment=Keep the official wallpaper fixed on unverified builds
+Exec=/usr/local/bin/mita-wallpaper-guard
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Lite Authenticity Check
+Comment=Warn if required creator credits are missing
+Exec=/usr/local/bin/mita-license-warning
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true

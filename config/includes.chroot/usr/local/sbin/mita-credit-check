@@ -1,0 +1,58 @@
+#!/bin/sh
+set -eu
+
+credit_file=/usr/share/doc/mita-lite/credits/CREDITS.txt
+expected_sha256=329c8a5f0ae8f6b086fbb003966fbda85558ec57ef43873e262dbe855734e100
+state_dir=/var/lib/mita-lite
+status_file="$state_dir/credit-status"
+warning_file=/etc/issue.d/90-mita-unverified.issue
+xfce_lock_dir=/etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+xfce_lock_file="$xfce_lock_dir/xfce4-desktop.xml"
+xfce_backup="$state_dir/xfce4-desktop.xml.before-credit-lock"
+lock_marker='mita-credit-wallpaper-lock'
+
+mkdir -p "$state_dir" /etc/issue.d "$xfce_lock_dir"
+
+actual_sha256=''
+if [ -f "$credit_file" ]; then
+    actual_sha256=$(sha256sum "$credit_file" | awk '{print $1}')
+fi
+
+if [ "$actual_sha256" = "$expected_sha256" ]; then
+    printf 'verified\n' > "$status_file"
+    rm -f "$warning_file"
+
+    if [ -f "$xfce_lock_file" ] && grep -q "$lock_marker" "$xfce_lock_file"; then
+        if [ -f "$xfce_backup" ]; then
+            cp -a "$xfce_backup" "$xfce_lock_file"
+            rm -f "$xfce_backup"
+        else
+            rm -f "$xfce_lock_file"
+        fi
+    fi
+
+    logger -t mita-credit-check 'Mita Lite creator credit verified.' || true
+    exit 0
+fi
+
+printf 'unverified\n' > "$status_file"
+cat > "$warning_file" <<'EOF'
+WARNING: This Mita Lite installation is an unverified modified build.
+The creator credit for blackbvnny is missing or changed.
+Wallpaper customization is disabled until the official credit/build is restored or an authorized separately licensed build is used.
+EOF
+
+if [ -f "$xfce_lock_file" ] && ! grep -q "$lock_marker" "$xfce_lock_file"; then
+    cp -a "$xfce_lock_file" "$xfce_backup"
+fi
+
+cat > "$xfce_lock_file" <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mita-credit-wallpaper-lock -->
+<channel name="xfce4-desktop" version="1.0">
+  <property name="backdrop" type="empty" locked="*"/>
+</channel>
+EOF
+
+logger -t mita-credit-check 'Creator credit missing or modified; wallpaper customization locked.' || true
+exit 0

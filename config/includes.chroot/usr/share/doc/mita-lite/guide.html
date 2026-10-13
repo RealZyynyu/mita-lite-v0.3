@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mita Lite · Setup guide</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#11151f;color:#edf1fc;font:17px/1.7 system-ui,sans-serif}
+main{max-width:930px;margin:auto;padding:70px 30px}header{padding:20px 0 35px;border-bottom:1px solid #303a50}
+.eyebrow{font-size:12px;letter-spacing:.2em;color:#aa9cff;font-weight:700}h1{font-size:clamp(36px,6vw,60px);line-height:1.1;margin:20px 0}
+h2{font-size:26px;margin-top:42px}p,li{color:#b9c3d8}a{color:#a9a0ff}strong{color:#edf1fc}
+.note{padding:18px 22px;border:1px solid #45406a;border-radius:12px;background:#221f35;margin:24px 0}
+code{background:#252d3d;border-radius:4px;padding:3px 7px;font-size:.9em}pre{background:#1b2130;padding:18px;overflow:auto;border-radius:10px}
+pre code{padding:0;background:none}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #303a50;padding:12px;text-align:left;vertical-align:top}
+footer{margin-top:50px;border-top:1px solid #303a50;padding-top:20px;font-size:14px;color:#a5afc5}
+</style></head><body><main>
+<header><div class="eyebrow">MITA LITE / GET STARTED</div><h1>A little setup.<br>A lot more play.</h1>
+<p>Your Xfce desktop is tuned for older x86-64 PCs. Effects are off, and the base avoids unnecessary extras. Install gaming clients and extra apps only when you need them.</p></header>
+<div class="note"><strong>Prototype build.</strong> This is a custom Debian 13 remix. Hardware, installer and game compatibility must be tested. There is no guarantee that every Windows game will run.</div>
+<p><strong>Hardware target:</strong> an older 64-bit PC with 2 GiB RAM for basic desktop/light gaming; 4 GiB is preferable. These targets are untested. Discord, browser tabs and modern games can need much more. 32-bit-only CPUs need a different base.</p><h2>1. Connect and settle in</h2><p>Use the network icon in the bottom panel for Wi-Fi or Ethernet. Set your keyboard, display scaling and time zone in Settings. Use the volume icon or PulseAudio Volume Control for your headset and microphone. If the PC has Bluetooth, add it through Game Hub before pairing devices.</p>
+<p>If you booted from the live USB, your changes are temporary unless you configured persistence. For a lasting setup, test the live environment first, then reboot from the USB and choose the text-mode Install entry in its boot menu. Review its selected disk and partition changes before accepting. The Debian live installer is configured to copy the customized desktop.</p>
+<h2>2. Open Game Hub</h2><p>The controller launcher on the panel opens Game Hub. Click an app to open its installer in a terminal. It asks before continuing, then APT displays dependencies and disk requirements for your review. Close the terminal once it says Done.</p>
+<table><thead><tr><th>App</th><th>Why install it?</th></tr></thead><tbody>
+<tr><td>Steam</td><td>Optional Steam client and 32-bit OpenGL libraries. Current clients and games may exceed an old PC’s requirements.</td></tr>
+<tr><td>Discord</td><td>Official desktop voice/chat client. Rerun its installer for new desktop releases when required.</td></tr>
+<tr><td>Lutris</td><td>Other game launchers and Wine games. Individual game recipes may download third-party files.</td></tr>
+<tr><td>MangoHud</td><td>Optional frame-rate and frame-time display.</td></tr>
+<tr><td>Vulkan tools / Bluetooth</td><td>Add these only for compatible graphics or Bluetooth hardware.</td></tr>
+<tr><td>OBS Studio / VLC</td><td>Recording and streaming / media playback.</td></tr>
+</tbody></table>
+<p>For more software, open Synaptic Package Manager. The base avoids Snap and Flatpak runtimes to save space, but Debian packages let you add them later if an app needs them. Do not add Ubuntu PPAs to Debian.</p>
+<h2>3. Set up Steam and check your games</h2><p>Open Steam, sign in and let the client update. Check <strong>Settings → Compatibility</strong> for the available Steam Play/Proton options. For an individual title, use <strong>Properties → Compatibility</strong> to select a Proton version if needed. Start with Valve's default before trying other versions.</p>
+<p>Check the game's publisher support information and <a href="https://www.protondb.com/">ProtonDB community reports</a>. Reports are hints, not guarantees for this PC. Some anti-cheat-protected multiplayer games cannot run on Linux; the game's developer must enable compatible support. A custom distro cannot remove that limitation.</p>
+<p>After installing GameMode with <code>mita-apps gamemode</code>, an optional Steam launch option is:</p><pre><code>gamemoderun %command%</code></pre>
+<p>With MangoHud installed:</p><pre><code>mangohud gamemoderun %command%</code></pre>
+<p>These tools are optional. Disable the overlay if it interferes with a game. GameMode cannot overcome a GPU, CPU or memory bottleneck.</p>
+<h2>4. Match the graphics driver to your hardware</h2><p>The base uses Mesa OpenGL and does not require Vulkan. Start by checking that OpenGL reports the physical GPU instead of software rendering:</p>
+<pre><code>glxinfo -B
+lspci -nnk</code></pre>
+<p>For a Vulkan-capable GPU, install Vulkan tools in Game Hub and run <code>vulkaninfo --summary</code>. Installing these packages cannot give an unsupported GPU Vulkan capability.</p>
+<p>For some older DirectX 9–11 games on non-Vulkan hardware, try this per-game Steam launch option:</p><pre><code>PROTON_USE_WINED3D=1 %command%</code></pre><p>This selects WineD3D/OpenGL instead of DXVK. It is not a DirectX 12 solution and can be slower or incompatible. See <a href="https://github.com/ValveSoftware/Proton#runtime-config-options">Valve’s runtime options</a>. Native, 2D and older Linux games remain the first choice for weak hardware.</p>
+<p><strong>NVIDIA:</strong> choose the driver for the exact GPU model using the <a href="https://wiki.debian.org/NvidiaGraphicsDrivers">Debian NVIDIA guide</a>. Proprietary drivers and matching 32-bit libraries need separate setup. Secure Boot may require enrolling a module-signing key. Avoid installing an arbitrary driver branch or NVIDIA's standalone .run file. Hybrid laptops also need offload testing.</p>
+<p>Very new GPUs may require newer firmware, kernel or Mesa packages. Diagnose the hardware before changing repositories; do not mix Debian stable and unstable as a quick fix.</p>
+<h2>5. Keep memory and disk use low</h2><ul>
+<li>Close the browser and Game Hub while playing. Keep Discord and Steam auto-start disabled unless you need them.</li>
+<li>Game downloads, shader caches and Proton runtimes need additional space. Inspect Steam's Storage settings before removing games or caches.</li>
+<li>Use the Task Manager to see what is using RAM. Compressed zram swap helps memory pressure but is not extra physical RAM.</li>
+<li>Desktop compositing and GTK animations are already disabled. You can enable compositing in Settings → Window Manager Tweaks → Compositor if the GPU handles it well; it may help tearing at an extra resource cost.</li>
+<li>The installer may allocate disk swap as well as zram. Review its storage summary; hibernation needs a separate, correctly configured disk-backed setup.</li>
+</ul>
+<h2>6. Updates and troubleshooting</h2><p>Use <strong>Update system</strong> in Game Hub for Debian packages. Review its change list, then reboot after kernel or driver updates. Steam manages its client and games; Discord's downloaded .deb needs separate updates through its Hub installer. Custom Mita configuration files have no automatic upstream updater.</p>
+<p>For silent audio, select the correct output and input in PulseAudio Volume Control. For Discord screen sharing or OBS encoding problems, verify the native driver and test the exact capture workflow. For game problems, record the game name, GPU, driver, Proton version and any error message.</p>
+<footer>Mita Lite 0.2 · Unofficial Debian remix · Custom source kit; independently untested on your hardware.</footer>
+</main></body></html>
