@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita System Info
+Comment=Show CPU RAM and storage
+Exec=xfce4-terminal --hold -e /usr/local/bin/mita-system-info
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;

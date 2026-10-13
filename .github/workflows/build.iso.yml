@@ -1,117 +1,36 @@
-name: Build Mita Lite ISO
-
+name: Build Mita Lite v0.3 candidate ISO
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
-  contents: write
-
-concurrency:
-  group: mita-lite-v0.2-release
-  cancel-in-progress: true
-
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-
     steps:
-      - name: Check out source
-        uses: actions/checkout@v6
-
-      - name: Show available disk space
-        run: df -h
-
+      - uses: actions/checkout@v4
       - name: Build on Debian 13
         shell: bash
         run: |
           set -euxo pipefail
-
-          if [[ -f "$GITHUB_WORKSPACE/build.sh" ]]; then
-            PROJECT="$GITHUB_WORKSPACE"
-          elif [[ -f "$GITHUB_WORKSPACE/mita-lite/build.sh" ]]; then
-            PROJECT="$GITHUB_WORKSPACE/mita-lite"
-          else
-            echo "Could not find build.sh. Put the Mita Lite source at the repository root or in ./mita-lite/." >&2
-            exit 1
-          fi
-
           mkdir -p "$GITHUB_WORKSPACE/out"
-
           docker run --rm --privileged \
-            -v "$PROJECT:/src" \
-            -v "$GITHUB_WORKSPACE/out:/out" \
-            -w /src \
-            debian:trixie \
-            bash -lc '
+            -v "$GITHUB_WORKSPACE:/src" -w /src debian:trixie bash -lc '
               set -euxo pipefail
               export DEBIAN_FRONTEND=noninteractive
-
               apt-get update
-              apt-get install -y --no-install-recommends \
-                live-build debootstrap squashfs-tools xorriso \
-                isolinux syslinux-common grub-pc-bin grub-efi-amd64-bin \
-                mtools dosfstools python3 ca-certificates
-
-              find . \
-                -path "./.git" -prune -o \
-                -path "./work" -prune -o \
-                -path "./out" -prune -o \
-                -type f -print0 | while IFS= read -r -d "" file; do
-                first="$(head -n 1 "$file" 2>/dev/null || true)"
-                case "$first" in
-                  "#!/bin/bash"*|"#!/bin/sh"*) chmod +x "$file" ;;
-                esac
-              done
-
+              apt-get install -y --no-install-recommends live-build debootstrap squashfs-tools xorriso isolinux syslinux-common grub-pc-bin grub-efi-amd64-bin mtools dosfstools python3 ca-certificates
+              chmod +x build.sh auto/config
               python3 tools/validate.py
               ./build.sh
-
               ISO="$(find work -type f -name "*.iso" -print -quit)"
               test -n "$ISO"
-              BUILD_DIR="$(dirname "$ISO")"
-
-              cp "$ISO" /out/mita-lite-0.2-amd64.iso
-              if [[ -f "$BUILD_DIR/SHA256SUMS" ]]; then
-                sed "s#$(basename "$ISO")#mita-lite-0.2-amd64.iso#" "$BUILD_DIR/SHA256SUMS" > /out/SHA256SUMS
-              fi
-              for f in configure.log build.log; do
-                if [[ -f "$BUILD_DIR/$f" ]]; then
-                  cp "$BUILD_DIR/$f" /out/
-                fi
-              done
+              cp "$ISO" /src/out/mita-lite-0.3-candidate-amd64.iso
+              (cd /src/out && sha256sum mita-lite-0.3-candidate-amd64.iso > SHA256SUMS)
             '
-
-          echo "Build output:"
-          ls -lh "$GITHUB_WORKSPACE/out"
-
-      - name: Upload ISO and logs
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: mita-lite-0.2-iso
+          name: mita-lite-0.3-candidate
           path: out/
           if-no-files-found: error
           retention-days: 7
-
-      - name: Publish GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euxo pipefail
-          TAG="v0.2"
-          ASSETS=(out/mita-lite-0.2-amd64.iso)
-          if [[ -f out/SHA256SUMS ]]; then
-            ASSETS+=(out/SHA256SUMS)
-          fi
-
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "${ASSETS[@]}" --clobber
-          else
-            gh release create "$TAG" "${ASSETS[@]}" \
-              --title "Mita Lite 0.2" \
-              --notes "Mita Lite 0.2 bootable amd64 ISO. Credits: blackbvnny."
-          fi

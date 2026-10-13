@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mita Hardware Report
+Comment=Inspect Intel AMD and network devices
+Exec=xfce4-terminal --hold -e /usr/local/bin/mita-hardware-report
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;

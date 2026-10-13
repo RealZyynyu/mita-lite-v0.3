@@ -1,0 +1,14 @@
+#!/bin/sh
+# Read-only report; does not install firmware or modify drivers.
+set -eu
+printf 'Mita Lite Hardware Report\n'
+printf 'Architecture: %s\n' "$(uname -m)"
+if command -v lscpu >/dev/null 2>&1; then
+  lscpu | grep -E '^(Vendor ID|Model name|Architecture):' || true
+fi
+if command -v lspci >/dev/null 2>&1; then
+  lspci | grep -Ei 'VGA|3D controller|Network controller|Ethernet controller' || true
+else
+  echo 'Install pciutils for PCI hardware details.'
+fi
+echo '64-bit Intel and AMD use the amd64 ISO. Check individual GPU/Wi-Fi firmware support.'
